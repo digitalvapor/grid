@@ -1,8 +1,12 @@
-"""----------
-    Grid
+"""-----------
+--------------
+---- GRID ----
+--------------
+--------------
+By Tom Spalding (https://github.com/digitalvapor)
 -------------
-Author: Tom Spalding, https://github.com/digitalvapor
-
+    SHOP
+-------------
 Note: This truncates the item's description at the first newline. If you format
 your descriptions with newlines then you can easily keep things brief.
 
@@ -23,6 +27,28 @@ page.item_img2[i]
 page.item_img3[i]
 
 TODO: cleanup, test on both python 2 and 3, merge redundancies, add storeenvy and youtube support
+--------------
+    RECIPE
+--------------
+num_recipes
+cook[i]
+cook_url[i]
+recipe_slug[i]
+recipe_js[i]
+recipe_json[i]
+recipe_originalIngredients[i]
+recipe_originalEquipments[i]
+recipe_originalInstructions[i]
+recipe_originalSpecial[i]
+recipe_difficulty[i]
+recipe_author
+    ...
+recipe_mainPicture[i]
+recipe_dateAdded[i]
+recipe_timeTaken[i]
+recipe_equipments[i]
+recipe_serves[i]
+recipe_title[i]
 """
 
 import urllib3
@@ -164,6 +190,50 @@ def item(generator, metadata):
             metadata['item_img2'].append(result['MainImage']['url_570xN'])
             metadata['item_img3'].append(result['MainImage']['url_fullxfull'])
 
+'''
+'http://forkthecookbook.com/recipes/'+recipe-slug+'.'+fmt, where fmt is 'js' or 'json'
+'''
+def recipe(generator,metadata):
+    if not ('cookbook' in metadata.keys()):
+        return
+
+    # fmt = 'json' #use json by default
+    # if ('javascript' in metadata['cookbook']):
+    #     fmt = 'js'
+
+    #split recipe slugs and remove the fmt info passed
+    recipes = metadata['cookbook'].split(',')
+    recipes = sorted(set(recipes)) #removes duplicates
+    for datum in recipes:
+        if datum == 'js' or datum == 'json':
+            recipes.remove(datum)
+
+    base_url = 'http://forkthecookbook.com/recipes/'
+
+    #remove slugs that 404
+    for slug in recipes:
+
+        recipe_url = base_url+slug
+        r = urllib.urlopen(recipe_url)
+
+        if(r.getcode()==404):
+            print('found a value (%s) that wasnt a formatting option or a proper recipe slug in the cookbook metadata.'%slug)
+            recipes.remove(slug)
+            continue
+
+    metadata['num_recipes'] = len(recipes)
+    metadata['recipe_js'] = []
+
+    #get js
+    for slug in recipes:
+
+        recipe_url = base_url+slug
+        recipe_js = recipe_url+'.js'
+        r = urllib.urlopen(recipe_js)
+        js = r.read()
+        metadata['recipe_js'].append(js)
+
 def register():
     signals.page_generator_context.connect(shop)
+    signals.page_generator_context.connect(recipe)
     signals.article_generator_context.connect(item)

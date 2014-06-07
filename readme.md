@@ -1,11 +1,11 @@
 #[Grid](https://github.com/digitalvapor/grid)
 by [Tom Spalding](https://github.com/digitalvapor)
 
-A [Pelican](https://github.com/getpelican/pelican) plugin that can easily include your Etsy shop in a page or post. Supported in the [icosahedron](https://github.com/digitalvapor/icosahedron) theme.
+A [Pelican](https://github.com/getpelican/pelican) plugin that can easily include your Etsy shop, or ForkTheCookbook recipe in a page or post. Supported in the [icosahedron](https://github.com/digitalvapor/icosahedron) theme.
 
-This is *only* meant for a few most recent items to display. There are some major to-do items, such as adding more than just Etsy support in the future.
+This is *only* meant for a few most recent items to display.
 
-##Settings
+##Shop Settings
 In `pelicanconf.py` set the following:
 ```
 ETSY_STORE = 0000000                      #your store id
@@ -112,6 +112,33 @@ Use this as your `item.html` template.
   <div class="bottom-cover"></div>
 </div>
 {% endif %}
+```
+
+##Recipe Settings
+In `pelicanconf.py` set the following (optional, if using a flag in your template):
+```
+COOK = 'forkthecookbook_username'
+```
+
+##Screenshots
+![js](screenshot2.png 'recipe js snippet')
+
+##Metadata
+You can call the following metadata:
+```
+page.num_recipes
+page.recipe_js[i]
+```
+
+##recipes.html
+Set a list of [Fork the Cookbook](http://forkthecookbook.com/) slugs in a page's metadata. It'll automatically remove duplicates, and slugs that 404. `Cookbook: mike-s-cheesecake-recipe-48754,strawberry-tree-jam-with-mango-and-lemon-a80ad`
+
+Set this as your `recipes.html`. It automatically includes a javascript snippet of the listed recipes.
+```
+{% for js in page.recipe_js %}
+  {% set i = loop.index0 %}
+  <script>{{ page.recipe_js[i] }}</script>
+{% endfor %}
 ```
 
 ##License
