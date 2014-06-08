@@ -126,18 +126,33 @@ COOK = 'forkthecookbook_username'
 ##Metadata
 You can call the following metadata:
 ```
-page.num_recipes
-page.recipe_js[i]
+num_recipes
+cook[i]
+cook_url[i]
+recipe_url[i]
+recipe_js[i]
+recipe_json[i]
+recipe_difficulty[i]
+recipe_created[i]
+recipe_created2[i]
+recipe_src_url[i]
+recipe_src_text[i]
+recipe_img[i]
+recipe_title[i]
+recipe_serves[i]
+recipe_slug[i]
 ```
 
 ##recipes.html
 Set a list of [Fork the Cookbook](http://forkthecookbook.com/) slugs in a page's metadata. It'll automatically remove duplicates, and slugs that 404. `Cookbook: mike-s-cheesecake-recipe-48754,strawberry-tree-jam-with-mango-and-lemon-a80ad`
 
-Set this as your `recipes.html`. It automatically includes a javascript snippet of the listed recipes.
+Set this as your `recipes.html`. It automatically includes a javascript snippet of the listed recipes, and opens up the above values to make your snippet cooler, like `recipe_img`.
 ```
-{% for js in page.recipe_js %}
-  {% set i = loop.index0 %}
-  <script>{{ page.recipe_js[i] }}</script>
+{% for recipe in page.recipe_js %}
+    {% set i = loop.index0 %}
+    <h1>{{ page.recipe_title[i] }}</h1>
+    <a href="{{ page.recipe_url[i] }}"><img src="{{ page.recipe_img[i] }}" alt="{{ page.recipe_title[i] }}"></a>
+    <script>{{ page.recipe_js[i] }}</script>
 {% endfor %}
 ```
 

@@ -26,29 +26,31 @@ page.item_img1[i]
 page.item_img2[i]
 page.item_img3[i]
 
-TODO: cleanup, test on both python 2 and 3, merge redundancies, add storeenvy and youtube support
 --------------
     RECIPE
 --------------
 num_recipes
 cook[i]
 cook_url[i]
-recipe_slug[i]
+recipe_url[i]
 recipe_js[i]
 recipe_json[i]
-recipe_originalIngredients[i]
-recipe_originalEquipments[i]
-recipe_originalInstructions[i]
-recipe_originalSpecial[i]
-recipe_difficulty[i]
-recipe_author
-    ...
-recipe_mainPicture[i]
-recipe_dateAdded[i]
-recipe_timeTaken[i]
-recipe_equipments[i]
-recipe_serves[i]
+recipe_oIng[i]
+recipe_oEqu[i]
+recipe_oIns[i]
+recipe_oSpecial[i]
+recipe_diff[i]
+recipe_created[i]
+recipe_created2[i]
+recipe_src_url[i]
+recipe_src_text[i]
+recipe_img[i]
 recipe_title[i]
+recipe_serves[i]
+recipe_slug[i]
+recipe_timeTaken[i]
+
+TODO: cleanup, test on both python 2 and 3, merge redundancies, add storeenvy and youtube support, better data structure
 """
 
 import urllib3
@@ -223,6 +225,19 @@ def recipe(generator,metadata):
 
     metadata['num_recipes'] = len(recipes)
     metadata['recipe_js'] = []
+    metadata['recipe_json'] = []
+    metadata['recipe_diff'] = []
+    metadata['cook'] = []
+    metadata['cook_url'] = []
+    metadata['recipe_created'] = []
+    metadata['recipe_created2'] = []
+    metadata['recipe_src_url'] = []
+    metadata['recipe_src_text'] = []
+    metadata['recipe_img'] = []
+    metadata['recipe_title'] = []
+    metadata['recipe_serves'] = []
+    metadata['recipe_slug'] = []
+    metadata['recipe_url'] = []
 
     #get js
     for slug in recipes:
@@ -233,7 +248,38 @@ def recipe(generator,metadata):
         js = r.read()
         metadata['recipe_js'].append(js)
 
+    #get json
+    for slug in recipes:
+
+        recipe_url = base_url+slug
+        recipe_json = recipe_url+'.json'
+        r = urllib.urlopen(recipe_json)
+        j = r.read()
+        j = j.replace('\\r\\n','')
+        j = json.loads(j)
+        metadata['recipe_json'].append(j)
+        metadata['recipe_diff'].append(j['difficulty'])
+        metadata['cook'].append(j['author']['userName'])
+        cook_url = 'http://forkthecookbook.com/'+j['author']['userName']
+        metadata['cook_url'].append(cook_url)
+        metadata['recipe_created'].append(j['dateAdded'])
+        metadata['recipe_created2'].append(j['humanDateTime'])
+        metadata['recipe_src_url'].append(j['source']['url'])
+        metadata['recipe_src_text'].append(j['source']['anchortext'])
+        metadata['recipe_img'].append(j['mainPicture'])
+        metadata['recipe_title'].append(j['title'])
+        metadata['recipe_serves'].append(j['serves'])
+        metadata['recipe_slug'].append(j['slug'])
+        metadata['recipe_url'].append(recipe_url)
+
+'''
+'http://forkthecookbook.com/'+COOK+'.json'
+'''
+# def cook(generator,metadata):
+#     pass
+
 def register():
     signals.page_generator_context.connect(shop)
     signals.page_generator_context.connect(recipe)
+    #signals.page_generator_context.connect(cook)
     signals.article_generator_context.connect(item)
